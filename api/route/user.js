@@ -26,10 +26,22 @@ route.get('/:id',(request, response, next)=>{
 
 })
 
+function randomID() {
+  const _users = usersList;
+  const number1 =1;
+  const isZeroValue = false;
+  const random = Math.floor((Math.random() * 10) + 1);
+  if (_users.length == 0){
+    return random;
+  }
+}
+  
+
+
 route.post('/', (request, response, next) => {
   const users = {};
 
-  users.id = usersList.length + 1;
+  users.id = randomID();
   users.username = request.body.username;
   users.password = request.body.password;
 

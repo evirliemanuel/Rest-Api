@@ -1,54 +1,85 @@
 const express = require('express');
-const route = express.Router();
-const usersList = [];
+const router = express.Router();
+const mongoose = require('mongoose');
 
-function findUserById(id) {
-  for (counter = 0; counter < usersList.length; counter++) {
-    var _user = usersList[counter];
-    if (_user.id == id) {
-      return _user;
-    }
-  }
-  return null;
-}
+const User = require('../models/user');
 
-route.get('/:id',(request, response, next)=>{
-  const id = request.params.id;
-          var _user = findUserById(id);
+router.get('/',(request, response, next)=>{
+  User.find()
+  .exec()
+    .then(docs => {
+      console.log(docs);
+      if (docs.length >= 0) {
+        response.status(200).json(docs);
+      } else {
+        response.status(404).json({
+          message: 'No data'
+        });
+      }
 
-          if (_user) {
-            response.status(200).json(_user);
-          } else {
-            response.status(200).json({
-              message: "Not found"
-            });
-          }
+    })
+  .catch(()=>{
+    console.log("Something wrong! GET/user");
+  });
 
-})
-
-function randomID() {
-  const _users = usersList;
-  const number1 =1;
-  const isZeroValue = false;
-  const random = Math.floor((Math.random() * 10) + 1);
-  if (_users.length == 0){
-    return random;
-  }
-}
-  
-
-
-route.post('/', (request, response, next) => {
-  const users = {};
-
-  users.id = randomID();
-  users.username = request.body.username;
-  users.password = request.body.password;
-
-  usersList.push(users);
-  console.log(usersList);
-
-  response.status(201).json(users);
 });
 
-module.exports = route;
+router.get('/:userId',(request, response, next)=>{
+  var id = request.params.userId;
+
+  User.findById(id)
+    .exec()
+    .then(doc => {
+      console.log(doc);
+      if (doc) {
+        response.status(200).json(doc);
+      } else {
+        response.status(404).json({ message: "No valide entry found" });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      response.status(500).json({ error: err });
+    });
+  
+});
+
+router.post('/', (request, response, next) => {
+    const user = new User({
+      _id: new mongoose.Types.ObjectId(),
+      username:request.body.username,
+      password:request.body.password
+    });
+    user.save()
+    .then(()=>{
+      console.log("Sucessfuly save data in database");
+    })
+    .catch(()=>{
+      console.log("Error: data not save ");
+    });
+});
+
+router.post('/:userId', (request, response, next) => {
+  var id = request.params.userId;
+
+});
+
+router.patch('/', (request, response, next) => {
+
+});
+
+router.patch('/:userId', (request, response, next) => {
+  var id = request.params.userId;
+
+});
+
+router.delete('/', (request, response, next) => {
+
+});
+
+router.delete('/:userId', (request, response, next) => {
+  var id = request.params.userId;
+
+});
+
+module.exports = router;
